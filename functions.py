@@ -50,15 +50,32 @@ def density(A,k):
 	density = float(n_cliques) / float(nCr(A.shape[0],k))
 	return density
 
-def naive_sample_neighbor_graph(A):
+def naive_sample_neighbor_graph(A,n_nodes_to_modify=1):
 # select a random edge in the graph and either add it or remove (according to if it already exists or not)
-# uniform probability
 	candidate_A = A.copy()
-	T_proba = 1.0 / nCr(candidate_A.shape[0],2)
-	random_edge = np.floor(np.random.rand(1)*candidate_A.shape).astype(int)
-	candidate_A[random_edge[0],random_edge[1]] = 0 if candidate_A[random_edge[0],random_edge[1]] else 1
-	candidate_A[random_edge[1],random_edge[0]] = candidate_A[random_edge[0],random_edge[1]]
-	# modify edge
+	
+	
+# uniform probability
+	T_proba = 1.0 / nCr(nCr(candidate_A.shape[0],2),n_nodes_to_modify)
+
+# generate random edges
+	lim_iterations = 10
+	counter = 0
+
+	while counter < lim_iterations:	
+		random_edges = np.floor(np.random.rand(n_nodes_to_modify,2)*candidate_A.shape[0]).astype(int)
+		b = np.ascontiguousarray(random_edges).view(np.dtype((np.void, random_edges.dtype.itemsize * random_edges.shape[1])))
+		_, idx = np.unique(b, return_index=True)
+		if (len(idx)==n_nodes_to_modify):
+			break
+
+	if counter == lim_iterations:
+		print 'Warning: in naive_sample_neighbor_graph, the max number of iterations has been reached'		
+
+	for edge in random_edges:
+		candidate_A[edge[0],edge[1]] = 0 if candidate_A[edge[0],edge[1]] else 1
+		candidate_A[edge[1],edge[0]] = candidate_A[edge[0],edge[1]]
+	
 	return T_proba, T_proba, candidate_A
 
 def accept_or_reject(A,candidate_A,prob,T_proba_1, T_proba_2):

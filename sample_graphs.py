@@ -47,12 +47,12 @@ def main():
 		return fct.proba(A,target_density,k)
 
 	def sampler(A):
-		return fct.naive_sample_neighbor_graph(A)
+		return fct.naive_sample_neighbor_graph(A,3)
 
 	#init_A = np.zeros([n_nodes,n_nodes])
 	init_A = fct.rand_sym(n_nodes)
 
-	record_proba = fct.metropolis(init_A,1000,prob,sampler,k)	
+	record_proba = fct.metropolis(init_A,5000,prob,sampler,k)	
 	
 	plot_evol_proba(record_proba)
 	plt.show()
